@@ -1,0 +1,18 @@
+---
+- hosts: all
+  roles:
+    - { role: roles/node_prepare, tags: node_prepare }
+
+# after init_cluster you should use kubeadm token list get token and format into groups_var
+- hosts: master_first
+  roles:
+    - { role: roles/master_init, tags: init_cluster }
+
+# run master_others need root privilege
+- hosts: master_others
+  roles:
+    - { role: roles/master_join, tags: join_cluster }
+
+- hosts: master_first
+  roles:
+    - { role: roles/net_plugin, tags: net_plugin }

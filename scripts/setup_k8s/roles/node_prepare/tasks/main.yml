@@ -1,0 +1,26 @@
+---
+- name: Set timezone
+  timezone:
+    name: Asia/Shanghai
+
+- name: Swapoff
+  shell: swapoff -a
+
+- name: Disable swap
+  replace:
+    path: /etc/fstab
+    regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
+    replace: '#\1\2\3swap\4'
+    backup: yes
+
+- name: Set hosts
+  lineinfile:
+    dest: /etc/hosts
+    line: "{{ item }} {{ nodes[item]['hostname'] }}"
+    state: present
+  with_items: "{{ groups['all'] }}"
+
+- name: Install docker and kube
+  import_tasks: ubuntu.yml
+  when: ansible_facts['distribution'] == "Ubuntu"
+

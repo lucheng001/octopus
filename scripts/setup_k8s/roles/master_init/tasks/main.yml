@@ -1,0 +1,16 @@
+---
+- name: Copy kubeadm cfg
+  template:
+    src: kubeadm.conf.j2
+    dest: /root/kubeadm.conf
+    mode: 0660
+
+- name: Init master
+  shell: |
+    kubeadm init --config /root/kubeadm.conf
+
+- name: Config master
+  shell: |
+    rm -rf /root/.kube
+    mkdir /root/.kube
+    cp /etc/kubernetes/admin.conf /root/.kube/config

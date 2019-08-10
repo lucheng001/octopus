@@ -1,0 +1,34 @@
+---
+- name: Create key dir
+  file:
+    path: /etc/kubernetes/pki/etcd
+    state: directory
+
+- name: Copy key
+  become: yes
+  become_user: root
+  copy:
+    src: "{{ item }}"
+    dest: "{{ item }}"
+  with_items:
+    - "/etc/kubernetes/pki/ca.crt"
+    - "/etc/kubernetes/pki/ca.key"
+    - "/etc/kubernetes/pki/sa.pub"
+    - "/etc/kubernetes/pki/sa.key"
+    - "/etc/kubernetes/pki/front-proxy-ca.crt"
+    - "/etc/kubernetes/pki/front-proxy-ca.key"
+    - "/etc/kubernetes/pki/etcd/ca.crt"
+    - "/etc/kubernetes/pki/etcd/ca.key"
+    - "/etc/kubernetes/admin.conf"
+
+- name: Conf master
+  shell: |
+    mkdir /root/.kube
+    cp /etc/kubernetes/admin.conf .kube/config
+
+- name: Join cluster
+  shell: |
+    kubeadm join {{ vip }}:8443 \
+    --token {{ token }} \
+    --discovery-token-unsafe-skip-ca-verification \
+    --control-plane

@@ -1,0 +1,96 @@
+---
+- name: Install docker requirements
+  apt:
+    name: apt-transport-https,ca-certificates,curl,gnupg2,software-properties-common
+    update_cache: yes
+
+- name: Add docker GPG
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+    
+- name: Add docker repo
+  apt_repository:
+    repo: deb [arch=amd64] https://mirrors.ustc.edu.cn/docker-ce/linux/ubuntu {{ lsb_release }} stable
+    state: present
+
+- name: Install docker
+  apt:
+    name: docker-ce=5:18.09.6~3-0~ubuntu-bionic
+    update_cache: yes
+
+- name: Add docker mirrors
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+    mode: 0644
+  #  notify: Reload docker
+
+- name: Start docker
+  systemd:
+    name: docker
+    state: restarted
+    enabled: yes
+
+- name: Install keepalived
+  apt:
+    name: keepalived
+    update_cache: yes
+
+- name: Install haproxy
+  apt:
+    name: haproxy
+    update_cache: yes
+
+- name: Conf keepalived
+  template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    mode: 0644
+
+- name: Start keepalived
+  systemd:
+    name: keepalived
+    state: restarted
+    enabled: yes
+
+- name: Conf haproxy
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+
+- name: Start haproxy
+  systemd:
+    name: haproxy
+    state: restarted
+    enabled: yes
+
+- name: Copy kube gpg
+  copy:
+    src: kube.gpg
+    dest: /tmp/kube.gpg
+
+- name: Add kube gpg
+  apt_key:
+    file: /tmp/kube.gpg
+    state: present
+
+- name: Add kube repo
+  apt_repository:
+    repo: deb http://mirrors.ustc.edu.cn/kubernetes/apt kubernetes-xenial main
+    state: present
+
+- name: Install kube
+  apt:
+    name: kubeadm=1.15.0-00,kubectl=1.15.0-00,kubelet=1.15.0-00
+    state: present
+
+- name: Copy kube imgs
+  unarchive:
+    src: imgs.tgz
+    dest: /root
+
+- name: Load kube imgs
+  shell: "{{ item }}"
+  with_items:
+    - ls /root/imgs/*.tar | xargs -l1 docker load --input 

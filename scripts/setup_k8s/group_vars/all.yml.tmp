@@ -1,0 +1,40 @@
+lsb_release: bionic
+
+docker_registrys:
+  - https://docker.mirrors.ustc.edu.cn
+
+vip: apiserver的虚ip
+vip_netmask: 子网掩码的位数
+
+kube_version: v1.15.0
+pod_network: 10.244.0.0/16 (canal 和 fannel网络)
+token: join token(建议固定token)
+
+keepalived_conf:
+  v_route_id: 虚拟路由id
+  passwd: 认证密码
+
+nodes:
+  <节点1 ip>:
+    node_role: master
+    hostname: <节点hostname>
+    netmask: 16
+    nic: <节点网卡名>
+    k_type: MASTER (keepalived中是master还是backup)
+    k_priority: 100 权重
+
+  <节点2 ip>:
+    node_role: master
+    hostname: master2
+    netmask: 16
+    nic: <节点网卡名>
+    k_type: BACKUP
+    k_priority: 95
+
+  <节点3 ip>:
+    node_role: master
+    hostname: master3
+    netmask: 16
+    nic: <节点网卡名>
+    k_type: BACKUP
+    k_priority: 90

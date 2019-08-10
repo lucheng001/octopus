@@ -1,0 +1,10 @@
+---
+- name: Copy netplugin yml
+  copy:
+    src: canal.yml
+    dest: /root
+    mode: 0644
+
+- name: Install netplugin
+  shell: |
+    kubectl apply -f /root/canal.yml

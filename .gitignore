@@ -1,0 +1,4 @@
+scripts/setup_k8s/ssh_keys/id_rsa
+scripts/setup_k8s/group_vars/all.yml
+scripts/setup_k8s/roles/node_prepare/files/imgs.tgz
+

@@ -1,0 +1,18 @@
+global_defs {
+}
+
+vrrp_instance VI_1 {
+    state {{ nodes[hostvars[inventory_hostname]['ansible_default_ipv4']['address']]['k_type'] }}
+    interface {{ nodes[hostvars[inventory_hostname]['ansible_default_ipv4']['address']]['nic'] }}
+    virtual_router_id {{ keepalived_conf['v_route_id'] }}
+    priority {{ nodes[hostvars[inventory_hostname]['ansible_default_ipv4']['address']]['k_priority'] }}
+    mcast_src_ip {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}/{{ nodes[hostvars[inventory_hostname]['ansible_default_ipv4']['address']]['netmask'] }}
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass {{ keepalived_conf['passwd'] }}
+    }
+    virtual_ipaddress {
+        {{ vip }}/{{ vip_netmask }}
+    }
+}
